@@ -149,12 +149,13 @@ all:
       KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g"
       KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true"
       KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{kafka_broker_log_dir}}/kafka-gc.log:time,tags:filecount=10,filesize=100M"
+      #KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.rmi.port=1235 -Djava.rmi.server.hostname={{ hostvars[inventory_hostname]|confluent.platform.resolve_hostname }}"
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
       KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/log4j/kafka-log4j.properties"
 
     kafka_broker_custom_properties:
       authorizer.class.name: "kafka.security.authorizer.AclAuthorizer"
-      super.users: "User:kafka"
+      super.users: "User:kafka;User:schemaregistry;User:kafkaui"
       log.dirs: /data/kafka
       log.retention.hours: 168
       log.retention.check.interval.ms: 300000
