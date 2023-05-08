@@ -1,0 +1,2 @@
+virtualenv>=20.16.5
+ansible>=2.11
