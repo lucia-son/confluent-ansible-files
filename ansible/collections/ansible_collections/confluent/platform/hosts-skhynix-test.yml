@@ -1,6 +1,11 @@
 ---
 all:
   vars:
+    kerberos_configure: true
+    kerberos:
+      realm: KAFKA.SECURE
+      kdc_hostname: control02
+      admin_hostname: control02
 
     ### ansible
     ansible_connection: ssh
@@ -38,12 +43,17 @@ all:
     installation_method: archive
     archive_destination_path: "/engn"
     confluent_archive_file_remote: true
+    config_prefix: ""
+    zookeeper_config_prefix: "/zookeeper"
+    kafka_broker_config_prefix: "/kafka" 
+    zookeeper_keytab_path: "{{ archive_destination_path }}/zookeeper/zookeeper.keytab"
+    kafka_broker_keytab_path: "{{ archive_destination_path }}/kafka/kafka.keytab"
 
     ### deployment strategy
     deployment_strategy: rolling
 
     ### sasl authentication
-    sasl_protocol: none
+    sasl_protocol: kerberos
 
     ### ssl
     ssl_enabled: false
@@ -271,30 +281,43 @@ zookeeper:
   # vars:
   hosts:
     zk01:
+      zookeeper_kerberos_keytab_path: /home/confluent/keytabs/zookeeper_zk01.service.keytab
+      zookeeper_kerberos_principal: zookeeper/zk01@KAFKA.SECURE
       zookeeper_id: 1
     br01:
+      zookeeper_kerberos_keytab_path: /home/confluent/keytabs/zookeeper_br01.service.keytab
+      zookeeper_kerberos_principal: zookeeper/br01@KAFKA.SECURE
       zookeeper_id: 2
     sr-ksql01:
+      zookeeper_kerberos_keytab_path: /home/confluent/keytabs/zookeeper_sr-ksql01.service.keytab
+      zookeeper_kerberos_principal: zookeeper/sr-ksql01@KAFKA.SECURE
       zookeeper_id: 3
 
 kafka_broker:
   # vars:
   hosts:
     zk01:
+      kafka_broker_kerberos_keytab_path: /home/confluent/keytabs/kafka_zk01.service.keytab
+      kafka_broker_kerberos_principal: kafka/zk01@KAFKA.SECURE
       broker_id: 1
-      kafka_broker_custom_properties: 
-        listeners: PLAINTEXT://zk01:9092
-        security.inter.broker.protocol:  PLAINTEXT
+      kafka_broker_custom_properties:
+        listeners: SASL_PLAINTEXT://zk01:9092
+        security.inter.broker.protocol: SASL_PLAINTEXT
     br01:
+      kafka_broker_kerberos_keytab_path: /home/confluent/keytabs/kafka_br01.service.keytab
+      kafka_broker_kerberos_principal: kafka/br01@KAFKA.SECURE
       broker_id: 2
-      kafka_broker_custom_properties: 
-        listeners: PLAINTEXT://br01:9092
-        security.inter.broker.protocol:  PLAINTEXT
+      kafka_broker_custom_properties:
+        listeners: SASL_PLAINTEXT://br01:9092
+        security.inter.broker.protocol: SASL_PLAINTEXT
     sr-ksql01:
+      kafka_broker_kerberos_keytab_path: /home/confluent/keytabs/kafka_sr-ksql01.service.keytab
+      kafka_broker_kerberos_principal: kafka/sr-ksql01@KAFKA.SECURE
       broker_id: 3
       kafka_broker_custom_properties:
-        listeners: PLAINTEXT://sr-ksql01:9092
-        security.inter.broker.protocol:  PLAINTEXT
+        listeners: SASL_PLAINTEXT://sr-ksql01:9092
+        security.inter.broker.protocol: SASL_PLAINTEXT
+
 schema_registry:
   vars:
     schema_registry_custom_properties:
