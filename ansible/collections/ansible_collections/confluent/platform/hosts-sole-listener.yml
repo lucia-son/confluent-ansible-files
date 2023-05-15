@@ -1,21 +1,22 @@
 ---
 all:
   vars:
+
     ### ansible
     ansible_connection: ssh
-    ansible_user: confluent
+    ansible_user: root
     ansible_become: true 
     mask_secrets: false
     mask_sensitive_logs: false
     mask_sensitive_diff: false
 
     ### os user and group
-    archive_owner: confluent
-    archive_group: confluent
-    zookeeper_user: confluent
-    zookeeper_group: confluent
-    kafka_broker_user: confluent
-    kafka_broker_group: confluent
+    archive_owner: root
+    archive_group: root
+    zookeeper_user: zookeeper
+    zookeeper_group: zookeeper
+    kafka_broker_user: kafka
+    kafka_broker_group: kafka
     schema_registry_user: confluent
     schema_registry_group: confluent
     kafka_connect_user: confluent
@@ -30,7 +31,7 @@ all:
 
     ### confluent kafka
     confluent_server_enabled: true
-    confluent_package_version: "6.2.1"
+    confluent_package_version: "7.3.2"
     confluent_cli_download_enabled: false
 
     ### archive install
@@ -61,12 +62,12 @@ all:
     #    sasl_protocol: none
 
     ### kafka internal listener
-    schema_registry_kafka_listener_name: internal
-    kafka_connect_kafka_listener_name: internal
-    kafka_rest_kafka_listener_name: internal
-    ksql_kafka_listener_name: internal
-    ksql_processing_log_kafka_listener_name: internal
-    control_center_kafka_listener_name: internal
+    #schema_registry_kafka_listener_name: internal
+    #kafka_connect_kafka_listener_name: internal
+    #kafka_rest_kafka_listener_name: internal
+    #ksql_kafka_listener_name: internal
+    #ksql_processing_log_kafka_listener_name: internal
+    #control_center_kafka_listener_name: internal
 
     ### monitoring
     jmxexporter_enabled: true
@@ -89,10 +90,10 @@ all:
     ### copy files
     zookeeper_copy_files:
       - source_path: "/home/confluent/ansible/source/log4j/zookeeper-log4j.properties"
-        destination_path: "{{archive_destination_path}}/log4j/zookeeper-log4j.properties"
+        destination_path: "{{archive_destination_path}}/zookeeper/zookeeper-log4j.properties"
     kafka_broker_copy_files:
       - source_path: "/home/confluent/ansible/source/log4j/kafka-log4j.properties"
-        destination_path: "{{archive_destination_path}}/log4j/kafka-log4j.properties"
+        destination_path: "{{archive_destination_path}}/kafka/kafka-log4j.properties"
       # - source_path: "/root/confluent/aws/credentials"
       #   destination_path: "{{archive_destination_path}}/aws/credentials"
     schema_registry_copy_files:
@@ -113,7 +114,6 @@ all:
 
     ### zookeeper
     ######################################################################
-
     zookeeper_log_dir: /logs/zookeeper
     zookeeper_chroot: /confluent
     zookeeper_service_environment_overrides:
@@ -146,7 +146,7 @@ all:
       KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true"
       KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{kafka_broker_log_dir}}/kafka-gc.log:time,tags:filecount=10,filesize=100M"
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/log4j/kafka-log4j.properties"
+      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/kafka/kafka-log4j.properties"
 
     kafka_broker_custom_properties:
       log.dirs: /data/kafka
@@ -161,7 +161,7 @@ all:
       replica.lag.time.max.ms: 30000
       unclean.leader.election.enable: "false"
 
-      auto.create.topics.enable: "false"
+      auto.create.topics.enable: "true"
       group.initial.rebalance.delay.ms: 3000
       offsets.topic.replication.factor: 3
       transaction.state.log.min.isr: 2
@@ -295,3 +295,16 @@ kafka_broker:
       kafka_broker_custom_properties:
         listeners: PLAINTEXT://sr-ksql01:9092
         security.inter.broker.protocol:  PLAINTEXT
+schema_registry:
+  vars:
+    schema_registry_custom_properties:
+      schema.registry.group.id: schema-cluster1
+  hosts:
+    sr-ksql01:
+kafka_connect:
+  children:
+    connect-cluster1:
+      vars:
+        kafka_connect_group_id: connect-cluster1
+      hosts:
+        cn01:

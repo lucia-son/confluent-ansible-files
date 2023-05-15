@@ -288,7 +288,7 @@ user_login_shell: /sbin/nologin
 # Zookeeper Variables
 
 ### Default Zookeeper config prefix. Note - Only valid to customize when installation_method: archive
-zookeeper_config_prefix: "{{ config_prefix }}/kafka"
+zookeeper_config_prefix: "{{ config_prefix }}/zookeeper"
 
 ### Set this variable to customize the Linux User that the Zookeeper Service runs with. Default user is cp-kafka.
 zookeeper_user: "{{zookeeper_default_user}}"
