@@ -70,6 +70,15 @@ systemd_start 로 수정하여 ansible 실행시 tags를 통해 해당 task를 �
 - Zookeeper와 Broker가 단일 서버에 구성되어 있으며 zookeeper와 broker실행 계정과 그룹이 서로 다른 경우 config directory를 따로 구분하여 설정한다. 
 - Note: Kerberos 구성된 클러스터인 경우 keytab파일 또한 Component별 구분된 디렉토리에 위치시키도록 설정한다.  
 - File: hosts-each-run.yml   
-- Execute: `ansible-playbook -i hosts-each-run.yml confluent.platform.all`
+- Execute: `ansible-playbook -i hosts-each-run.yml confluent.platform.all`  
+```bash  
+# config directory 구별하기 위한 prefix 설정 (예시: zookeeper) 
+참고: config_file: "{{ (config_base_path, zookeeper_config_prefix_path, 'zookeeper.properties') | path_join }}"
+
+archive_destination_path: /engn
+config_prefix: ""
+zookeeper_config_prefix: "/zookeeper" ### zookeeper_config_prefix_path는 "zookeeper" 로 설정된다.
+zookeeper_keytab_path: "{{ archive_destination_path }}/zookeeper/zookeeper.keytab"  
+```  
     
   <br/>
