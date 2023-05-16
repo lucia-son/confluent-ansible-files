@@ -61,7 +61,7 @@ systemd_start 로 수정하여 ansible 실행시 tags를 통해 해당 task를 �
   
   <br/>
 #### TEST 07: Broker 단일 Listener 구성  
-- Ansible 기동시 자동으로 구성되는 multiple listener를 비활성화하고, 단일 Listener를 구성한다. 
+- Ansible 기동시 자동으로 구성되는 multiple listener를 비활성화(roles/variables/vars/main.yml 의 관련 부분 주석처리)하고, 단일 Listener를 구성한다. 
 - File: hosts-sole-listener.yml   
 - Execute: `ansible-playbook -i hosts-sole-listener.yml confluent.platform.all`
   
