@@ -3,12 +3,12 @@
   
 [TEST 01. ANSIBLE COMPONENTS NODE 확인](#test-01-ansible-components-node-확인)  
 [TEST 02. 기본 클러스터 구성](#test-02-기본-클러스터-구성)  
-[TEST 03. 2개 클러스터 구성](#test-03-2개-클러스터-구성)  
+[TEST 03. 다중 클러스터 구성](#test-03-다중-클러스터-구성)  
 [TEST 04. 서비스 자동 시작 비활성화](#test-04-서비스-자동-시작-비활성화)  
 [TEST 05. SSL 구성](#test-05-ssl-구성)  
 [TEST 06: Kerberos 구성](#test-06-kerberos-구성)  
 [TEST 07: Broker 단일 Listener 구성](#test-07-broker-단일-listener-구성)  
-[TEST 08: Component별 실행 계정/그룹 구분 설정](#test-08-component별-실행-계정그룹-구분-설정)
+[TEST 08: Component별 실행 계정/그룹 구분 설정](#test-08-component별-실행-계정/그룹-구분-설정)
   <br/><br/>  
 
 ---------------------------------------------
@@ -29,10 +29,10 @@ $ ansible-playbook -i hosts.yml confluent.platform.all --tags=zookeeper
 
 # 옵션2. ansible 실행시 사용하는 python 경로 지정하여 구성 
 $ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpreter=/usr/bin/python3  
-```   
-<br/>  
+```  
+  
 
-#### TEST 03: 2개 클러스터 구성 
+#### TEST 03: 다중 클러스터 구성 
 - Replicator등의 테스트를 위한 두 개의 클러스터, 각 클러스터별 zk/br/schema/connect 1대씩 구성한다.
 - File: hosts-dc1.yml & hosts-dc2.yml  
 - Execute: `ansible-playbook -i hosts-dc1.yml confluent.platform.all; ansible-playbook -i hosts-dc2.yml confluent.platform.all`  
@@ -49,22 +49,24 @@ systemd에서 systemd_start 로 수정하여 ansible 실행시 tags를 통해 �
 #### TEST 05: SSL 구성 
 - 미리 Confluent Component가 구성될 노드에 Keystore/Truststore 파일을 위치시켜두고, ansible inventory 파일에 해당 파일 관련 정보를 host별로 명시한다.
 - File: hosts-ssl.yml  
-- Execute:   
+- Execute: `ansible-playbook -i hosts-ssl.yml confluent.platform.all`
   
   <br/>
 #### TEST 06: Kerberos 구성  
 - 
 - File: hosts-kerberos.yml   
-- Execute:   
+- Execute: `ansible-playbook -i hosts-kerberos.yml confluent.platform.all`  
   
   <br/>
 #### TEST 07: Broker 단일 Listener 구성  
 - File: hosts-sole-listener.yml   
-- Execute:   
+- Execute: `ansible-playbook -i hosts-sole-listener.yml confluent.platform.all`
   
   <br/>
-#### TEST 08: Component별 실행 계정그룹 구분 설정   
+#### TEST 08: Component별 실행 계정/그룹 구분 설정 
+- Zookeeper와 Broker가 
+- Note: Kerberos 구성된 클러스터인 경우 keytab파일 또한 Component별 구분된 디렉토리에 위치시키도록 설정한다.  
 - File: hosts-each-run.yml   
-- Execute:   
+- Execute: `ansible-playbook -i hosts-each-run.yml confluent.platform.all`
     
   <br/>
