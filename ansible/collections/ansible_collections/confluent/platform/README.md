@@ -1,13 +1,36 @@
 ### Confluent Kafka Ansible (cp-ansible) TEST Files 
+
 [TEST 01. ANSIBLE COMPONENTS NODE 확인](#test-01-ansible-components-node-확인)
-1. [기본 클러스터용 YML] 
-2. [2개 클러스터 구성]
-3. [자동 재시작 비활성화]
-4. [SSL 구성된 클러스터]
-5. [Kerberos 구성된 클러스터]
-6. [브로커 단일 Listener 구성된 클러스터]
-7. [Component 별 설정파일 디렉토리 및 실행 계정/그룹 다르게 설정]
+[TEST 02. 기본 클러스터 구성](#test-02-기본-클러스터-구성)
+[TEST 03. 2개 클러스터 구성](#test-03-2개-클러스터-구성)
+[TEST 04. 서비스 자동 시작 비활성화](#test-04-서비스-자동-시작-비활성화)
+[TEST 05. SSL 구성](#test-05-ssl-구성)
+[TEST TEST 06: Kerberos 구성](#test-06-kerberos-구성)
+[TEST 07: Broker 단일 Listener 구성](#test-07-broker-단일-listener-구성)
+[TEST 08: Component별 실행 계정/그룹 구분 설정](#test-08-Component별-실행-계정/그룹-구분-설정)
+
 ---------------------------------------------
 
 ##### TEST 01. ANSIBLE COMPONENTS NODE 확인
 File: test-ping.yml
+
+##### TEST 02: 기본 클러스터 구성
+File: hosts.yml 
+
+##### TEST 03: 2개 클러스터 구성 
+File: hosts-dc1.yml & hosts-dc2.yml
+
+##### TEST 04: 서비스 자동 시작 비활성화
+File: hosts-nostart.yml 
+
+##### TEST 05: SSL 구성
+File: hosts-ssl.yml
+
+##### TEST 06: Kerberos 구성
+File: hosts-kerberos.yml
+
+##### TEST 07: Broker 단일 Listener 구성
+File: hosts-sole-listener.yml
+
+##### TEST 08: Component별 실행 계정/그룹 구분 설정 
+File: hosts-each-run.yml 
