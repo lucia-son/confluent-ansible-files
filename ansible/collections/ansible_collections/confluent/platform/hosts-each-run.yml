@@ -1,7 +1,7 @@
 ---
 all:
   vars:
-    kerberos_configure: true
+    kerberos_configure: false
     kerberos:
       realm: KAFKA.SECURE
       kdc_hostname: control02
