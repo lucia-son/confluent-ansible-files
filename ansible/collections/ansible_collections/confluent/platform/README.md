@@ -13,10 +13,9 @@
 ---------------------------------------------
 
 ##### TEST 01. ANSIBLE COMPONENTS NODE 확인
-File: test-ping.yml  
-Note:  
-Execute:  
-`ansible -i test-ping.yml all -m ping`    
+- File: test-ping.yml  
+- Note:  
+- Execute: `ansible -i test-ping.yml all -m ping`    
 
 
 ##### TEST 02: 기본 클러스터 구성
