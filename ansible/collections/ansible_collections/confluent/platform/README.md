@@ -1,6 +1,6 @@
 
 ### Confluent Kafka Ansible (cp-ansible) TEST Files  
-  <br/><br/>
+  <br/>  
 [TEST 01. ANSIBLE COMPONENTS NODE 확인](#test-01-ansible-components-node-확인)  
 [TEST 02. 기본 클러스터 구성](#test-02-기본-클러스터-구성)  
 [TEST 03. 2개 클러스터 구성](#test-03-2개-클러스터-구성)  
@@ -28,11 +28,11 @@
 $ ansible-playbook -i hosts.yml confluent.platform.all --tags=zookeeper  
 
 # 옵션2. ansible 실행시 사용하는 python 경로 지정하여 구성 
-$ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpreter=/usr/bin/python3
-```
+$ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpreter=/usr/bin/python3  
+```  
   
   <br/>
-#### TEST 03: 2개 클러스터 구성  
+#### TEST 03: 2개 클러스터 구성 
 - Replicator등의 테스트를 위한 두 개의 클러스터, 각 클러스터별 zk/br/schema/connect 1대씩 구성한다.
 - File: hosts-dc1.yml & hosts-dc2.yml  
 - Execute: `ansible-playbook -i hosts-dc1.yml confluent.platform.all; ansible-playbook -i hosts-dc2.yml confluent.platform.all`  
@@ -43,7 +43,7 @@ $ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpr
 - health_checks_enabled 를 비활성화하고, 각 component별 tasks/main.yml 에서 서비스를 시작하는 task 의 tags를
 systemd에서 systemd_start 로 수정하여 ansible 실행시 tags를 통해 해당 task를 제외한다.
 - File: hosts-nostart.yml    
-- Execute: `ansible-playbook -i hosts-nostart.yml confluent.platform.all --skip-tags systemd_start` 
+- Execute: `ansible-playbook -i hosts-nostart.yml confluent.platform.all --skip-tags systemd_start`   
   
   <br/>
 #### TEST 05: SSL   
