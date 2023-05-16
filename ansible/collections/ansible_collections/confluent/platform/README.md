@@ -43,24 +43,25 @@ $ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpr
 #### TEST 04: 서비스 자동 시작 비활성화  
 - Ansible 실행 시 서비스 자동 시작 없이 설정파일만 배포
 - health_checks_enabled 를 비활성화하고, 각 component별 tasks/main.yml 에서 서비스를 시작하는 task 의 tags를
-systemd에서 systemd_start 로 수정하여 ansible 실행시 tags를 통해 해당 task를 제외한다.
+systemd_start 로 수정하여 ansible 실행시 tags를 통해 해당 task를 제외한다.
 - File: hosts-nostart.yml    
 - Execute: `ansible-playbook -i hosts-nostart.yml confluent.platform.all --skip-tags systemd_start`   
   
   <br/>
 #### TEST 05: SSL 구성 
-- 미리 Confluent Component가 구성될 노드에 Keystore/Truststore 파일을 위치시켜두고, ansible inventory 파일에 해당 파일 관련 정보를 host별로 명시한다.
+- 미리 Ansible component 노드에 Keystore/Truststore 파일을 위치시켜두고, ansible inventory 파일에 해당 파일 관련 정보를 host별로 명시한다.
 - File: hosts-ssl.yml  
 - Execute: `ansible-playbook -i hosts-ssl.yml confluent.platform.all`
   
   <br/>
 #### TEST 06: Kerberos 구성  
-- 
+- Component별 설정한 Kerberos Keytab 파일을 Ansible Control Node에 위치시키고, ansible inventory 파일에 해당 파일 위치와 principal 정보를 host별로 명시한다.
 - File: hosts-kerberos.yml   
 - Execute: `ansible-playbook -i hosts-kerberos.yml confluent.platform.all`  
   
   <br/>
 #### TEST 07: Broker 단일 Listener 구성  
+- Ansible 기동시 자동으로 구성되는 multiple listener를 비활성화하고, 단일 Listener를 구성한다. 
 - File: hosts-sole-listener.yml   
 - Execute: `ansible-playbook -i hosts-sole-listener.yml confluent.platform.all`
   
