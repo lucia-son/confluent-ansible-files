@@ -32,7 +32,7 @@ $ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpr
 ```
   
   <br/>
-#### TEST 03: 2개 클러스터 구성 
+#### TEST 03: 2개 클러스터 구성  
 - Replicator등의 테스트를 위한 두 개의 클러스터, 각 클러스터별 zk/br/schema/connect 1대씩 구성한다.
 - File: hosts-dc1.yml & hosts-dc2.yml  
 - Execute: `ansible-playbook -i hosts-dc1.yml confluent.platform.all; ansible-playbook -i hosts-dc2.yml confluent.platform.all`  
