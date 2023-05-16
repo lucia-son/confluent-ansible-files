@@ -31,7 +31,7 @@ $ ansible-playbook -i hosts.yml confluent.platform.all --tags=zookeeper
 $ ansible-playbook -i hosts.yml confluent.platform.all -e ansible_python_interpreter=/usr/bin/python3  
 ```  
   
-
+  <br/>
 #### TEST 03: 다중 클러스터 구성 
 - Replicator등의 테스트를 위한 두 개의 클러스터, 각 클러스터별 zk/br/schema/connect 1대씩 구성한다.
 - File: hosts-dc1.yml & hosts-dc2.yml  
