@@ -463,6 +463,16 @@
     - sysctl
     - privileged
 
+- name: Tune File Descriptor
+  ansible.builtin.blockinfile:
+    path: /etc/security/limits.conf
+    block: | 
+      {{ kafka_broker_user }} soft nofile 400000
+      {{ kafka_broker_user }} hard nofile 400000
+  tags:
+    - sysctl
+    - privileged
+
 - name: Certs were Updated - Trigger Restart
   command: /bin/true
   notify: restart kafka
