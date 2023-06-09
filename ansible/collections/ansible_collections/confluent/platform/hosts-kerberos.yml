@@ -1,6 +1,7 @@
 ---
 all:
   vars:
+    health_checks_enabled: false
     kerberos_configure: true
     kerberos: 
       realm: KAFKA.SECURE
@@ -133,15 +134,28 @@ all:
       KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/log4j/zookeeper-log4j.properties"
 
     zookeeper_custom_properties:
-      dataDir: /data/zookeeper
       tickTime: 2000
-      initLimit: 5
-      syncLimit: 2
-      maxClientCnxns: 0
-      autopurge.snapRetainCount: 10
-      autopurge.purgeInterval: 1
-      admin.enableServer: "false"
-      4lw.commands.whitelist: ruok,stat,srvr
+      initLimit: 10
+      syncLimit: 5
+      4lw.commands.whitelist: conf,cons,crst,dirs,dump,envi,gtmk,ruok,stmk,srst,srvr,stat,wchs,mntr,isro
+      dataDir: /data/zookeeper
+      dataLogDir: /data/zookeeper
+      clientPort: 2181
+      maxClientCnxns: 60
+      minSessionTimeout: 4000
+      maxSessionTimeout: 60000
+      autopurge.purgeInterval: 24
+      autopurge.snapRetainCount: 5
+      quorum.auth.enableSasl: true
+      quorum.cnxn.threads.size: 20
+      admin.enableServer: false
+      admin.serverPort: 5181
+      leaderServers: yes
+      kerberos.removeHostFromPrincipal: true
+      kerberos.removeRealmFromPrincipal: true
+      quorum.auth.learnerRequireSasl: true
+      quorum.auth.serverRequireSasl: true 
+      quorum.auth.kerberos.servicePrincipal: zookeeper/_HOST
 
     ### kafka
     kafka_broker_log_dir: /logs/kafka
