@@ -31,10 +31,7 @@ all:
     ### confluent kafka
     confluent_server_enabled: true
     confluent_package_version: "7.3.2"
-    confluent_cli_download_enabled: true
-    confluent_cli_version: "2.30.1"
-    confluent_cli_base_path: "/engn/dc1/confluent_cli"
-    confluent_cli_path: "/usr/local/bin/confluent"
+    confluent_cli_download_enabled: false
 
     ### archive install
     installation_method: archive
@@ -59,18 +56,9 @@ all:
       - data-center1
 
     ### kafka listeners
-    kafka_broker_configure_multiple_listeners: true
+    kafka_broker_configure_multiple_listeners: false
     kafka_broker_configure_control_plane_listener: false
-    kafka_broker_inter_broker_listener_name: broker
-    kafka_broker_custom_listeners:
-      internal:
-        name: INTERNAL
-        port: 9092
-        sasl_protocol: none
-      broker:
-        name: BROKER
-        port: 9093
-        sasl_protocol: none
+    #kafka_broker_inter_broker_listener_name: broker
 
     ### kafka internal listener
     schema_registry_kafka_listener_name: internal
@@ -81,8 +69,8 @@ all:
     control_center_kafka_listener_name: internal
 
     ### monitoring
-    jmxexporter_enabled: true
-    jmxexporter_url_remote: true
+    jmxexporter_enabled: false
+    jmxexporter_url_remote: false
     jmxexporter_version: 0.17.2
     jmxexporter_jar_path: "{{archive_destination_path}}/prometheus/jmx_prometheus_javaagent.jar"
     zookeeper_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/zookeeper.yml"
@@ -213,6 +201,9 @@ all:
       CLASSPATH: "{{archive_destination_path}}/confluent-{{confluent_package_version}}/share/java/kafka-connect-replicator/*"
 
     kafka_connect_custom_properties:
+      config.storage.topic: cp-repl-connect-config
+      offset.storage.topic: cp-repl-connect-offset
+      status.storage.topic: cp-repl-connect-status
       config.storage.replication.factor: 1
       offset.storage.partitions: 25
       offset.storage.replication.factor: 1
@@ -291,21 +282,24 @@ kafka_broker:
   hosts:
     br01:
       broker_id: 1
+      kafka_broker_custom_properties:
+        listeners: PLAINTEXT://br01:9092
+        security.inter.broker.protocol: PLAINTEXT
 
-schema_registry:
-  vars:
-    schema_registry_custom_properties:
-      schema.registry.group.id: schema-cluster1
-  hosts:
-    zk01:
+#schema_registry:
+#  vars:
+#    schema_registry_custom_properties:
+#      schema.registry.group.id: schema-cluster1
+#  hosts:
+#    zk01:
 
-kafka_connect:
-  children:
-    data-center1:
-      vars:
-        kafka_connect_group_id: data-center1
-      hosts:
-        br01:
+#kafka_connect:
+#  children:
+#    data-center1:
+#      vars:
+#        kafka_connect_group_id: data-center1
+#      hosts:
+#        br01:
 
 #control_center:
   #vars:

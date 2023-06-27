@@ -12,8 +12,6 @@ all:
     ### os user and group
     archive_owner: confluent
     archive_group: confluent
-    zookeeper_user: confluent
-    zookeeper_group: confluent
     kafka_broker_user: confluent
     kafka_broker_group: confluent
     schema_registry_user: confluent
@@ -59,18 +57,18 @@ all:
       - ksql-cluster1
 
     ### kafka listeners
-    kafka_broker_configure_multiple_listeners: false
+    kafka_broker_configure_multiple_listeners: true
     kafka_broker_configure_control_plane_listener: false
-    #kafka_broker_inter_broker_listener_name: broker
-    #kafka_broker_custom_listeners:
-    #  internal:
-    #    name: INTERNAL
-    #    port: 9092
-    #    sasl_protocol: none
-    #  broker:
-    #    name: BROKER
-    #    port: 9093
-    #    sasl_protocol: none
+    kafka_broker_inter_broker_listener_name: broker
+    kafka_broker_custom_listeners:
+      internal:
+        name: INTERNAL
+        port: 9092
+        sasl_protocol: none
+      broker:
+        name: BROKER
+        port: 9093
+        sasl_protocol: none
 
     ### kafka internal listener
     schema_registry_kafka_listener_name: internal
@@ -85,8 +83,6 @@ all:
     jmxexporter_url_remote: true
     jmxexporter_version: 0.17.2
     jmxexporter_jar_path: "{{archive_destination_path}}/prometheus/jmx_prometheus_javaagent.jar"
-    zookeeper_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/zookeeper.yml"
-    zookeeper_jmxexporter_port: 1234
     kafka_broker_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/kafka_broker.yml"
     kafka_broker_jmxexporter_port: 1235
     schema_registry_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/schema_registry.yml"
@@ -99,9 +95,9 @@ all:
     kafka_rest_jmxexporter_port: 1239
 
     ### copy files
-    zookeeper_copy_files:
-      - source_path: "/home/confluent/ansible/source/log4j/zookeeper-log4j.properties"
-        destination_path: "{{archive_destination_path}}/log4j/zookeeper-log4j.properties"
+    kafka_controller_copy_files:
+      - source_path: "/home/confluent/ansible/source/log4j/kafka-log4j.properties"
+        destination_path: "{{archive_destination_path}}/log4j/kafka-log4j.properties"
     kafka_broker_copy_files:
       - source_path: "/home/confluent/ansible/source/log4j/kafka-log4j.properties"
         destination_path: "{{archive_destination_path}}/log4j/kafka-log4j.properties"
@@ -123,30 +119,22 @@ all:
       - source_path: "/home/confluent/ansible/source/log4j/control-center-log4j.properties"
         destination_path: "{{archive_destination_path}}/log4j/control-center-log4j.properties"
 
-    ### zookeeper
+    ### kafka_controller
     ######################################################################
 
-    zookeeper_log_dir: /logs/zookeeper
-    zookeeper_chroot: /confluent
-    zookeeper_service_environment_overrides:
-      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m"
+    kafka_controller_log_dir: /logs/controller
+    kafka_controller_service_environment_overrides:
+      KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g"
       KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true"
-      KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{zookeeper_log_dir}}/zookeeper-gc.log:time,tags:filecount=10,filesize=100M"
+      KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{kafka_broker_log_dir}}/kafka-gc.log:time,tags:filecount=10,filesize=100M"
       KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
-      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/log4j/zookeeper-log4j.properties"
+      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/log4j/kafka-log4j.properties"
 
-    zookeeper_custom_properties:
-      dataDir: /data/zookeeper
-      tickTime: 2000
-      initLimit: 5
-      syncLimit: 2
-      maxClientCnxns: 0
-      autopurge.snapRetainCount: 10
-      autopurge.purgeInterval: 1
-      admin.enableServer: "false"
-      4lw.commands.whitelist: ruok,stat,srvr
+    kafka_controller_custom_properties:
+      log.dirs: /data/kraft
+      metadata.log.dir: /data/kraft_metadata
 
-    zookeeper_service_overrides:
+    kafka_controller_service_overrides:
       SuccessExitStatus: 143
 
     ### kafka
@@ -279,56 +267,33 @@ all:
       confluent.controlcenter.id: test01
       confluent.controlcenter.name: test01
 
-zookeeper:
+kafka_controller:
   # vars:
   hosts:
     zk01:
-      zookeeper_id: 1
-    br01:
-      zookeeper_id: 2
-    sr-ksql01:
-      zookeeper_id: 3
+      node_id: 1
 
-kafka_broker: 
+kafka_broker:
+  # vars:
   hosts:
-    zk01:
-      broker_id: 1
-      kafka_broker_custom_properties:
-        listeners: PLAINTEXT://zk01:9092
-        security.inter.broker.protocol:  PLAINTEXT
     br01:
-      broker_id: 2
-      kafka_broker_custom_properties:
-        listeners: PLAINTEXT://br01:9092
-        security.inter.broker.protocol:  PLAINTEXT
+      node_id: 2
+
+schema_registry:
+  vars:
+    schema_registry_custom_properties:
+      schema.registry.group.id: schema-cluster1
+  hosts:
     sr-ksql01:
-      broker_id: 3
-      kafka_broker_custom_properties:
-        listeners: PLAINTEXT://sr-ksql01:9092
-        security.inter.broker.protocol:  PLAINTEXT
 
-#schema_registry:
-#  vars:
-#    schema_registry_custom_properties:
-#      schema.registry.group.id: schema-cluster1
-#  hosts:
-#    sr-ksql01:
 
-#kafka_connect:
-#  children:
-#    connect-cluster1:
-#      vars:
-#        kafka_connect_group_id: connect-cluster1
-#      hosts:
-#        cn01:
-
-#ksql:
-#  children:
-#    ksql-cluster1:
-#      vars:
-#        ksql_service_id: ksql-cluster1
-#      hosts:
-#        control01:
+ksql:
+  children:
+    ksql-cluster1:
+      vars:
+        ksql_service_id: ksql-cluster1
+      hosts:
+        control01:
 
 control_center:
   # vars:
