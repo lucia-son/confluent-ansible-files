@@ -1,0 +1,170 @@
+---
+all:
+  vars:
+    ### ansible
+    ansible_connection: ssh
+    ansible_user: confluent
+    ansible_become: true
+    mask_secrets: false
+    mask_sensitive_logs: false
+    mask_sensitive_diff: false
+
+    ### os user and group
+    archive_owner: root
+    archive_group: root
+    zookeeper_user: zookeeper
+    zookeeper_group: zookeeper
+    kafka_broker_user: kafka
+    kafka_broker_group: kafka
+
+    health_checks_enabled: false
+
+    ### jdk
+    custom_java_path: "/usr/lib/jvm/jdk-17-oracle-x64"
+
+    ### confluent kafka
+    confluent_server_enabled: true
+    confluent_package_version: "7.3.2"
+    confluent_cli_download_enabled: false
+
+    ### archive install
+    installation_method: archive
+    archive_destination_path: "/engn"
+    confluent_archive_file_remote: false
+    confluent_archive_file_source: "/home/confluent/ansible/source/confluent-7.3.2.tar.gz"
+    config_prefix: ""
+    zookeeper_config_prefix: "/zookeeper"
+    kafka_broker_config_prefix: "/kafka"
+
+    ### deployment strategy
+    deployment_strategy: rolling
+
+    ### sasl authentication
+    sasl_protocol: none
+
+    ### ssl
+    ssl_enabled: false
+    ssl_mutual_auth_enabled: false
+
+    ### rbac
+    rbac_enabled: false
+
+    ### kafka listeners
+    kafka_broker_configure_multiple_listeners: false
+    kafka_broker_configure_control_plane_listener: false
+
+    ### monitoring
+    jmxexporter_enabled: true
+    jmxexporter_url_remote: false
+    jmxexporter_jar_url: "/home/confluent/ansible/source/jmx/jmx_prometheus_javaagent-0.18.0.jar"
+    jmxexporter_jar_path: "{{archive_destination_path}}/prometheus/jmx_prometheus_javaagent.jar"
+    zookeeper_jmxexporter_config_source_path: "/home/confluent/ansible/source/jmx/zookeeper.yml"
+    zookeeper_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/zookeeper.yml"
+    zookeeper_jmxexporter_port: 9696
+    kafka_broker_jmxexporter_config_source_path: "/home/confluent/ansible/source/jmx/kafka_broker.yml"
+    kafka_broker_jmxexporter_config_path: "{{archive_destination_path}}/prometheus/kafka_broker.yml"
+    kafka_broker_jmxexporter_port: 7071
+
+    ### copy files
+    zookeeper_copy_files:
+      - source_path: "/home/confluent/ansible/source/log4j/zookeeper-log4j.properties"
+        destination_path: "{{archive_destination_path}}/zookeeper/zookeeper-log4j.properties"
+    kafka_broker_copy_files:
+      - source_path: "/home/confluent/ansible/source/log4j/kafka-log4j.properties"
+        destination_path: "{{archive_destination_path}}/kafka/kafka-log4j.properties"
+      - source_path: "/home/confluent/ansible/source/keytabs/kafka_tester102.keytab"
+        destination_path: "{{archive_destination_path}}/kafka/kafka-metric.keytab"
+
+    ### zookeeper
+    zookeeper_log_dir: /logs/zookeeper
+    zookeeper_service_environment_overrides:
+      KAFKA_HEAP_OPTS: "-Xms512m -Xmx512m"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true"
+      KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{zookeeper_log_dir}}/zookeeper-gc.log:time,tags:filecount=10,filesize=100M"
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/zookeeper/zookeeper-log4j.properties"
+    zookeeper_service_overrides:
+      SuccessExitStatus: 143
+
+    ### kafka
+    ######################################################################
+    kafka_broker_log_dir: /logs/kafka
+    kafka_broker_service_environment_overrides:
+      JAVA_HOME: "/root/jdk-17.0.7"
+      KAFKA_HEAP_OPTS: "-Xms4g -Xmx4g"
+      KAFKA_JVM_PERFORMANCE_OPTS: "-server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+ExplicitGCInvokesConcurrent -XX:MaxInlineLevel=15 -Djava.awt.headless=true"
+      KAFKA_GC_LOG_OPTS: "-Xlog:gc*:file={{kafka_broker_log_dir}}/kafka-gc.log:time,tags:filecount=10,filesize=100M"
+      KAFKA_JMX_OPTS: "-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+      KAFKA_LOG4J_OPTS: "-Dlog4j.configuration=file:{{archive_destination_path}}/kafka/kafka-log4j.properties"
+    kafka_broker_service_overrides:
+      SuccessExitStatus: 143
+
+zookeeper:
+  vars:
+    zookeeper_leader_port: 4181
+    zookeeper_peer_port: 3181
+    zookeeper_chroot: /confluent
+    zookeeper_custom_properties:
+      dataDir: /data/zookeeper
+      tickTime: 2000
+      initLimit: 5
+      syncLimit: 2
+      maxClientCnxns: 0
+      autopurge.snapRetainCount: 10
+      autopurge.purgeInterval: 1
+      admin.enableServer: "false"
+      4lw.commands.whitelist: ruok,stat,srvr
+  hosts:
+    tester098:
+      zookeeper_id: 98
+    tester099:
+      zookeeper_id: 99
+    tester100:
+      zookeeper_id: 100
+
+kafka_broker:
+  vars:
+    kafka_broker_custom_properties:
+      log.dirs: /data/kafka
+      log.retention.hours: 72
+      log.retention.check.interval.ms: 300000
+      log.segment.bytes: 1073741824
+      num.partitions: 1
+      num.recovery.threads.per.data.dir: 1
+      default.replication.factor: 3
+      min.insync.replicas: 2
+      replica.lag.time.max.ms: 30000
+      unclean.leader.election.enable: "false"
+      auto.create.topics.enable: "false"
+      group.initial.rebalance.delay.ms: 3000
+      offsets.topic.replication.factor: 3
+      transaction.state.log.min.isr: 2
+      transaction.state.log.replication.factor: 3
+      confluent.balancer.enable: "true"
+      confluent.balancer.heal.uneven.load.trigger: EMPTY_BROKER
+      confluent.balancer.disk.max.load: 0.85
+      confluent.balancer.topic.replication.factor: 3
+      confluent.tier.enable: "false"
+      metric.reporters: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      confluent.metrics.reporter.bootstrap.servers: "tester102:9092"
+      confluent.metrics.reporter.sasl.mechanism: GSSAPI
+      confluent.metrics.reporter.security.protocol: SASL_PLAINTEXT
+      confluent.metrics.reporter.sasl.kerberos.service.name: kafka
+      confluent.metrics.reporter.sasl.jaas.config: com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab="/engn/kafka/kafka-metric.keytab" principal="kafka/tester102@KAFKA.SECURE";
+
+  hosts:
+    tester098:
+      broker_id: 98
+      kafka_broker_custom_properties:
+        listeners: PLAINTEXT://tester098:9092
+        security.inter.broker.protocol:  PLAINTEXT
+    tester099:
+      broker_id: 99
+      kafka_broker_custom_properties:
+        listeners: PLAINTEXT://tester099:9092
+        security.inter.broker.protocol:  PLAINTEXT
+    tester100:
+      broker_id: 100
+      kafka_broker_custom_properties:
+        listeners: PLAINTEXT://tester100:9092
+        security.inter.broker.protocol:  PLAINTEXT
